@@ -1,0 +1,506 @@
+#!/system/bin/sh
+# V2T by Aditya Pratama :v
+# Copyright (c) 2017 DEACE
+# Version 1.1
+version="1.1"
+# Credits: Aditya Pratama, XDA Developers, Stackexchange, Google dan You.
+
+# Changelogs
+# v1.0.0 : Rilis pertama
+# v1.0.1 : Perbaikan bug
+# v1.0.2 : Perbaikan bug
+# v1.0.3 : Ditambahkan Paksa Root
+# v1.0.4 : Ditambahkan file config, edit config dan perbaikan bug
+# v1.0.5 : Perbaikan bug kecil, ditambahkan halaman tentang dan bantuan
+# v1.0.6: Perbaikan bug
+# v1.0.7: Perbaikan bug
+# v1.0.8: Ditambahkan log error dan otomatis mengulangi.
+# v1.0.9: Ditambahkan 'Lihat log', 'Hapus log' dan perbaikan tidak bisa membuat config
+# Aditya Pratama tidak akan melanjutkan software ini.
+# Karena software ini open source, Anda bebas untuk mengedit, tetapi Anda tidak diperkenankan untuk menghilangkan Into Author Asli.
+# v1.1: Versi Terakhir, perbaikan bug
+
+## Maaf kami menghentikan proyek ini.
+## Jika punya fixes kirimkan ke deace.inc@gmail.com
+
+
+## Default Interface
+usb="usb0"
+wifi="wlan0"
+bt="bt-pan"
+vpn="tun0"
+
+## IP interface
+ip_usb="192.168.42.0"
+ip_wifi="192.168.43.0"
+ip_bt="192.168.44.0"
+
+## DNS
+dns="8.8.8.8"
+
+## Config
+conf="$HOME/v2t.conf"
+conf2="$HOME/.v2t"
+
+log="$HOME/v2t.log"
+auto="1"
+force_tether="0"
+log_mode="0"
+
+## 
+to1="Tethering WIFI"
+to2="Tethering USB"
+to3="Tethering Bluetooth"
+
+# Function
+
+copyright () {
+	sleep 0.5
+	echo " __     ______ _____ "
+	echo " \ \   / /___ \_   _|	VPN TO TETHER v$version"
+	echo "  \ \ / /  __) || |  	Author: Aditya Pratama"
+	echo "   \ V /  / __/ | |  	Email: deace.inc@gmail.com"
+	echo "    \_/  |_____||_|  	facebook.com/deace.inc"
+	echo "                     "
+	sleep 1
+	if [ -e "$conf2" ]; then
+		source "$conf2"
+	fi
+	if [ -e "$conf" ]; then
+		source "$conf"
+	fi
+}
+
+home () {
+	echo "  [+] Ketik apa saja untuk keluar..."
+	sleep 0.3
+	echo
+	echo "  Mohon pilih..."
+	sleep 0.1
+	echo "   1. $to1"
+	sleep 0.1
+	echo "   2. $to2"
+	sleep 0.1
+	echo "   3. $to3"
+	sleep 0.1
+	echo "   4. Pengaturan"
+	sleep 0.1
+	echo "   5. Bantuan"
+	read input
+	echo
+	case "$input" in
+		1) interface="$wifi";ip="$ip_wifi";name="$to1";autore;;
+		2) interface="$usb";ip="$ip_usb";name="$to2";autore;;
+		3) interface="$bt";ip="$ip_bt";name="$to3";autore;;
+		4) settings;;
+		5) help;;
+		*) exit;;
+	esac
+}
+
+autore () {
+	echo "   Tekan CTRL + C untuk keluar"
+	sleep 0.3
+	echo
+	timelog
+	echo "Memulai V2T ke $name..."
+	if [ "$auto" == "1" ]; then
+		sleep 1
+		timelog
+		echo "Otomatis mengulangi sedang aktif.. "
+		while :
+		do
+		if [ "$force_tether" != "1" ]; then
+			tether_check
+		fi
+			if [ ! -d "/sys/class/net/$vpn" ]; then
+				vpn_re
+			else
+				if [ "$(cat /sys/class/net/$vpn/operstate)" == "down" ]; then
+					vpn_re
+				fi
+			fi
+			if [ -d /sys/class/net/$vpn ]; then
+				if [ "$(cat /sys/class/net/$vpn/operstate)" == "up" ]; then
+			autore2
+				fi
+			fi
+		done
+	else
+		sleep 0.5
+		timelog
+		echo "Otomatis mengulangi nonaktif..."
+		start
+		exit
+	fi
+}
+
+autore2 () {
+	if [ "$vp" != "1" ]; then
+	 vp=1
+	 start
+	fi
+}
+
+start () {
+	sleep 3
+	timelog2
+	iptables --flush &>> "$log"
+	iptables -t filter -F FORWARD &>> "$log"
+	iptables -t nat -F POSTROUTING &>> "$log"
+	iptables -t filter -A FORWARD -j ACCEPT &>> "$log"
+	iptables -t nat -A POSTROUTING -j MASQUERADE &>> "$log"
+	timelog
+	echo "Menyetel DNS..."
+	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to "$dns" &>> "$log"
+	ip rule add from "$ip/24" lookup 61 &>> "$log"
+	ip route add default dev "$vpn" scope link table 61 &>> "$log"
+	ip route add "$ip/24" dev "$interface" scope link table 61 &>> "$log"
+	ip route add broadcast 255.255.255.255 dev "$interface" scope link table 61 &>> "$log"
+	timelog
+	echo "Selesai..."
+}
+
+settings () {
+	sleep 0.3
+	echo "  Pilih Pengaturan"
+	sleep 0.1
+	echo "   1. Antarmuka"
+	sleep 0.1
+	echo "   2. Antarmuka IP "
+	sleep 0.1
+	echo "   3. DNS"
+	sleep 0.1
+	echo "   4. Otomatis Mengulangi"
+	sleep 0.1
+	echo "   5. Ubah Lokasi Konfig"
+	sleep 0.1
+	echo "   6. Paksa Tethering"
+	sleep 0.1
+	echo "   7. Pengaturan Log"
+	sleep 0.1
+	echo "   8. Reset Pengaturan"
+	sleep 0.1
+	echo "   9. Kembali"
+	read input
+	echo
+	case "$input" in
+		1) interface;;
+		2) ip_interface;;
+		3) edits="dns";def="8.8.8.8";edit;;
+		4) current="Aktif";edits="auto";edit_mode;;
+		5) edits="conf";edit_config;;
+		6) current="Nonaktif";edits="force_tether";edit_mode;;
+		7) log_settings;;
+		8) if [ -e "$conf2" ]; then 
+				rm "$conf2";
+			fi;
+			if [ -e "$conf" ]; then
+				rm "$conf";
+				echo "   Selesai";
+			else
+				echo "    Anda belum mengatur apapun";
+			fi;
+			echo;
+			exit;;
+		9) copyright;home;;
+		*) exit;;
+	esac
+}
+
+interface () {
+	sleep 0.3
+	echo "  Silakan pilih Antarmuka";
+	sleep 0.1
+	echo "   1. Antarmuka WIFI"
+	sleep 0.1
+	echo "   2. Antarmuka USB"
+	sleep 0.1
+	echo "   3. Antarmuka Bluetooth"
+	sleep 0.1
+	echo "   4. Antarmuka VPN"
+	sleep 0.1
+	echo "   5. Kembali"
+	read input
+	echo
+	case "$input" in
+		1) edits="wifi";def="wlan0";edit;;
+		2) edits="usb";def="usb0";edit;;
+		3) edits="bt";def="bt-pan";edit;;
+		4) edits="vpn";def="tun0";edit;;
+		5) settings;;
+		*) exit;;
+	esac
+}
+
+ip_interface () {
+	sleep 0.3
+	echo "  Silakan pilih Antarmuka IP"
+	sleep 0.1
+	echo "   1. Antarnuka IP WIFI"
+	sleep 0.1
+	echo "   2. Antarmuka IP USB"
+	sleep 0.1
+	echo "   3. Antarmuka IP Bluetooth"
+	sleep 0.1
+	echo "   4. Kembali"
+	read input
+	echo
+	case "$input" in
+		1) edits="ip_wifi";def="192.168.43.1";edit;;
+		2) edits="ip_usb";def="192.168.42.1";edit;;
+		3) edits="ip_bt";def="192.168.44.1";edit;;
+		4) settings;;
+	*) exit;;
+	esac
+}
+
+edit () {
+	echo "   Silakan masukkan (default: $def)"
+	echo
+	read input
+	if [ "$input" == "" ]; then
+			echo
+			echo "    Anda belum memasukkan"
+			echo
+	else
+		echo "$edits='$input'" >> "$conf"
+		echo
+		echo "   Berhasil diubah"
+		echo
+	fi
+	settings
+}
+
+edit_config () {
+	echo "   Silakan masukkan (default: $HOME)"
+	echo
+	if [ -e "$conf2" ]; then
+		rm "$conf2";
+	fi
+	read input
+		if [ "$input" == "" ]; then
+			echo
+			echo "    Anda belum memasukkan lokasi"
+			echo
+			edit_config
+		fi
+		[ -w "$input" ] && rw_value="1" || rw_value="0"
+	if [ "$rw_value" != "1" ]; then
+		echo
+		echo "    Lokasi tidak valid"
+		echo
+		edit_config
+	else
+		echo "$edits='$input/v2t.conf'" >> "$conf2"
+		if [ -e "$conf" ]; then
+			mv "$conf" "$input"
+			echo
+			echo "   Berhasil diubah"
+			echo
+		fi
+	fi
+	settings
+}
+
+edit_mode () {
+	sleep 0.3
+	echo "   Silakan Pilih (default: $current)"
+	sleep 0.1
+	echo "   1. Aktif"
+	sleep 0.1
+	echo "   2. Nonaktif"
+	echo
+	read input
+	case "$input" in
+	1) echo "$edits='1'" >> "$conf";;
+	2) echo "$edits='2'" >> "$conf";;
+	*) echo; 
+		echo "    Pilihan Anda salah";
+		echo;
+		edit_mode;;
+	esac
+	echo
+	echo "   Berhasil diubah"
+	echo
+	settings
+}
+
+help () {
+	echo "   Bantuan V2T $version"
+	echo "   Author: Aditya Pratama"
+	echo "   Email: deace.inc@gmail.com"
+	echo "   Line: _deace"
+	echo "   facebook.com/deace.inc"
+	echo
+	echo "   V2T (VPN TO TETHER) adalah sebuah software open source yang memungkinkan untuk mengaktifkan Tethering saat VPN sedang aktif."
+	echo "   V2T hanya dapat dijalankan jika perangkat Android Anda memiliki akses root dan dukungan iptables."
+	echo
+	echo "   Anda bebas mengedit ulang software ini tetapi Anda tidak diperkenankan untuk menghapus Author pembuat software ini."
+	echo "   Jangan pernah menjual software ini kepada siapapun."
+	echo
+	sleep 5
+	echo "   Masalah V2T"
+	echo "   Jika V2T tidak berjalan dengan baik, Anda harus mengubah pengaturan antarmuka, melalui Pengaturan > Antarmuka > Pilih Antarmuka yang akan Anda ubah."
+	echo "   Untuk dapat melihat antarmuka, ketik perintah 'netcfg' tanpa tanda petik."
+	echo
+	echo 
+	echo "   Terima kasih telah menggunakan software ini."
+	echo " (c) 2017 DEACE"
+	exit
+}
+
+tether_exit () {
+sleep 1
+	timelog
+	echo "Tethering nonaktif..."
+	sleep 1.5
+	timelog
+	echo "Sedang keluar..."
+	exit
+}
+
+vpn_re () {
+	timelog
+	echo "VPN nonaktif..."
+	sleep 0.5
+	timelog
+	echo "Mengulangi..."
+	sleep 2
+	start
+}
+
+timelog () {
+		echo -n "[$(date +%H:%M:%S)] "
+}
+
+timelog2 () {
+		echo >> "$log"
+		echo "[$(date '+%d-%m-%y %H:%M:%S')]" >> "$log"
+}
+
+log_settings () {
+	echo
+	sleep 0.3
+	echo "   Pengaturan Log"
+	sleep 0.1
+	echo "    1. Mode log"
+	sleep 0.1
+	echo "    2. Ubah lokasi menyimpan log"
+	sleep 0.1
+	echo "    3. Lihat log"
+	sleep 0.1
+	echo "    4. Hapus log"
+	sleep 0.1
+	echo "    5. Kembali"
+	echo
+	read input
+	case "$input" in
+	1) current="Nonaktif";edits="log_mode";edit_mode;;
+	2) log_location;;
+	3) exec="cat";del_log="0";exe_log;;
+	4) exec="rm";del_log="1";exe_log;;
+	5) settings;;
+	*) exit;;
+	esac
+}
+
+tether_check () {
+	if [ ! -d "/sys/class/net/$interface" ]; then
+		tether_exit
+	else
+		if [ "$(cat /sys/class/net/$interface/operstate)" == "down" ]; then
+			tether_exit
+		fi
+	fi
+}
+
+log_location () {
+	sleep 0.5
+	if [ -e "$log" ]; then
+		rm "$log"
+	fi
+	echo
+	echo "   Silakan masukkan (default: $HOME)"
+	read input
+	if [ "$input" == "" ]; then
+			echo
+			echo "    Anda belum memasukkan lokasi"
+			echo
+			log_location
+	fi
+		[ -w "$input" ] && rw_value="1" || rw_value="0"
+	if [ "$rw_value" != "1" ]; then
+		echo
+		echo "    Lokasi tidak valid"
+		echo
+		log_location
+	else
+		echo "log='$input/v2t.log'" >> "$conf"
+		echo
+		sleep 0.5
+		settings
+	fi
+}
+
+check_rw () {
+	[ -w "$HOME" ] && rw_value="1" || rw_value="0"
+	if [ "$rw_value" != "1" ]; then
+		V2TPATH="/sdcard"
+		conf="$V2TPATH/v2t.conf"
+		conf2="$V2TPATH/.v2t"
+	fi
+}
+
+exe_log () {
+	if [ "$log" == "/dev/null" ]; then
+		echo
+		echo "    Maaf! Anda belum mengaktifkan pencatatan log."
+		echo
+		echo
+		exit
+	else
+		if [ -e "$log" ]; then
+			$exec "$log"
+			echo
+			sleep 0.3
+			if [ "$del_log" == "1" ]; then
+				echo "     Log berhasil dihapus"
+			fi
+		else
+			sleep 0.3
+			echo "    Log tidak ada"
+		fi
+	fi
+}
+
+#Main
+check_rw
+copyright
+if [ "$log_mode" != "1" ]; then
+	log="/dev/null"
+fi
+
+xpath="/system/xbin"
+if [ -e "$xpath/id" ];
+then
+	path="$xpath"
+else
+	path="/system/bin"
+	force_root="1"
+fi
+if [ "$($path/id -u)" != "0" ] && [ "$($path/id -u)" != "root" ] && [ "$force_root" != "1" ]; then
+	echo
+	echo "  [!] Maaf! Akses root dibutuhkan."
+else
+	home
+	echo
+	echo
+	exit
+fi
+
+# (C) 2016-2017 DEACE
+#  ADITYA PRATAMA
+# EMAIL: deace.inc@gmail.com
+# Line: _deace
+# Surabaya, Indonesia
