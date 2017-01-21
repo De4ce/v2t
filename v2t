@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-version="1.1.01"
+version="1.1.02"
 # Credits: Aditya Pratama, XDA Developers, Stackexchange, Google dan You.
 
 ## Default Interface
@@ -131,7 +131,7 @@ start () {
 	iptables -t filter -A FORWARD -j ACCEPT &>> "$log"
 	iptables -t nat -A POSTROUTING -j MASQUERADE &>> "$log"
 	timelog
-	echo "Menyetel DNS..."
+	echo "Mengatur DNS..."
 	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to "$dns" &>> "$log"
 	ip rule add from "$ip/24" lookup 61 &>> "$log"
 	ip route add default dev "$vpn" scope link table 61 &>> "$log"
@@ -177,9 +177,9 @@ settings () {
 			fi;
 			if [ -e "$conf" ]; then
 				rm "$conf";
-				echo "   Selesai";
+				echo "   Selesai.";
 			else
-				echo "    Anda belum mengatur apapun";
+				echo "    Anda belum mengatur apapun.";
 			fi;
 			echo;
 			exit;;
@@ -312,6 +312,7 @@ help () {
 	echo "   Email: deace.inc@gmail.com"
 	echo "   Line: _deace"
 	echo "   facebook.com/deace.inc"
+	echo "    https://github.com/De4ce/v2t"
 	echo
 	echo "   V2T (VPN TO TETHER) adalah sebuah software open source yang memungkinkan untuk mengaktifkan Tethering saat VPN sedang aktif."
 	echo "   V2T hanya dapat dijalankan jika perangkat Android Anda memiliki akses root dan dukungan iptables."
@@ -325,7 +326,6 @@ help () {
 	echo "   Untuk dapat melihat antarmuka, ketik perintah 'netcfg' tanpa tanda petik."
 	echo
 	echo 
-	echo "   Terima kasih telah menggunakan software ini."
 	echo " (c) 2017 DEACE"
 	exit
 }
@@ -405,14 +405,14 @@ log_location () {
 	read input
 	if [ "$input" == "" ]; then
 			echo
-			echo "    Anda belum memasukkan lokasi"
+			echo "    Anda belum memasukkan lokasi."
 			echo
 			log_location
 	fi
 		[ -w "$input" ] && rw_value="1" || rw_value="0"
 	if [ "$rw_value" != "1" ]; then
 		echo
-		echo "    Lokasi tidak valid"
+		echo "    Lokasi tidak valid."
 		echo
 		log_location
 	else
@@ -426,9 +426,9 @@ log_location () {
 check_rw () {
 	[ -w "$HOME" ] && rw_value="1" || rw_value="0"
 	if [ "$rw_value" != "1" ]; then
-		V2TPATH="/sdcard"
-		conf="$V2TPATH/v2t.conf"
-		conf2="$V2TPATH/.v2t"
+		VPATH="/sdcard"
+		conf="$VPATH/v2t.conf"
+		conf2="$VPATH/.v2t"
 	fi
 }
 
@@ -437,10 +437,12 @@ del_log () {
 			rm "$log"
 			echo
 			sleep 0.3
-			echo "     Log berhasil dihapus"
+			echo "     Log berhasil dihapus."
+			echo
 		else
 			sleep 0.3
-			echo "    Log tidak ada"
+			echo "    Log tidak ada."
+			echo
 		fi
 }
 
@@ -458,7 +460,7 @@ show_log () {
 			sleep 0.3
 		else
 			sleep 0.3
-			echo "    Log tidak ada"
+			echo "    Log tidak ada."
 		fi
 	fi
 }
