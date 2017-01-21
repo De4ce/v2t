@@ -1,28 +1,8 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-# Version 1.1
-version="1.1"
+version="1.1.01"
 # Credits: Aditya Pratama, XDA Developers, Stackexchange, Google dan You.
-
-# Changelogs
-# v1.0.0 : Rilis pertama
-# v1.0.1 : Perbaikan bug
-# v1.0.2 : Perbaikan bug
-# v1.0.3 : Ditambahkan Paksa Root
-# v1.0.4 : Ditambahkan file config, edit config dan perbaikan bug
-# v1.0.5 : Perbaikan bug kecil, ditambahkan halaman tentang dan bantuan
-# v1.0.6: Perbaikan bug
-# v1.0.7: Perbaikan bug
-# v1.0.8: Ditambahkan log error dan otomatis mengulangi.
-# v1.0.9: Ditambahkan 'Lihat log', 'Hapus log' dan perbaikan tidak bisa membuat config
-# Aditya Pratama tidak akan melanjutkan software ini.
-# Karena software ini open source, Anda bebas untuk mengedit, tetapi Anda tidak diperkenankan untuk menghilangkan Into Author Asli.
-# v1.1: Versi Terakhir, perbaikan bug
-
-## Maaf kami menghentikan proyek ini.
-## Jika punya fixes kirimkan ke deace.inc@gmail.com
-
 
 ## Default Interface
 usb="usb0"
@@ -398,8 +378,8 @@ log_settings () {
 	case "$input" in
 	1) current="Nonaktif";edits="log_mode";edit_mode;;
 	2) log_location;;
-	3) exec="cat";del_log="0";exe_log;;
-	4) exec="rm";del_log="1";exe_log;;
+	3) show_log;;
+	4) del_log;;
 	5) settings;;
 	*) exit;;
 	esac
@@ -452,7 +432,19 @@ check_rw () {
 	fi
 }
 
-exe_log () {
+del_log () {
+		if [ -e "$log" ]; then
+			rm "$log"
+			echo
+			sleep 0.3
+			echo "     Log berhasil dihapus"
+		else
+			sleep 0.3
+			echo "    Log tidak ada"
+		fi
+}
+
+show_log () {
 	if [ "$log" == "/dev/null" ]; then
 		echo
 		echo "    Maaf! Anda belum mengaktifkan pencatatan log."
@@ -461,12 +453,9 @@ exe_log () {
 		exit
 	else
 		if [ -e "$log" ]; then
-			$exec "$log"
+			cat "$log"
 			echo
 			sleep 0.3
-			if [ "$del_log" == "1" ]; then
-				echo "     Log berhasil dihapus"
-			fi
 		else
 			sleep 0.3
 			echo "    Log tidak ada"
