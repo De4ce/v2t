@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-version="1.1.02"
+version="1.1.03"
 # Credits: Aditya Pratama, XDA Developers, Stackexchange, Google dan You.
 
 ## Default Interface
@@ -241,12 +241,12 @@ edit () {
 	read input
 	if [ "$input" == "" ]; then
 			echo
-			echo "    Anda belum memasukkan"
+			echo "    Anda belum memasukkan."
 			echo
 	else
 		echo "$edits='$input'" >> "$conf"
 		echo
-		echo "   Berhasil diubah"
+		echo "   Berhasil diubah."
 		echo
 	fi
 	settings
@@ -261,14 +261,14 @@ edit_config () {
 	read input
 		if [ "$input" == "" ]; then
 			echo
-			echo "    Anda belum memasukkan lokasi"
+			echo "    Anda belum memasukkan lokasi."
 			echo
 			edit_config
 		fi
 		[ -w "$input" ] && rw_value="1" || rw_value="0"
 	if [ "$rw_value" != "1" ]; then
 		echo
-		echo "    Lokasi tidak valid"
+		echo "    Lokasi tidak valid."
 		echo
 		edit_config
 	else
@@ -276,7 +276,7 @@ edit_config () {
 		if [ -e "$conf" ]; then
 			mv "$conf" "$input"
 			echo
-			echo "   Berhasil diubah"
+			echo "   Berhasil diubah."
 			echo
 		fi
 	fi
