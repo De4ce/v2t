@@ -7,8 +7,8 @@ Hubungi kami : deace.inc@gmail.com
 
 ## Membutuhkan 
 - ROOT
-- Iptables
-- Terminal
+- Iptables (Setiap Android sudah terinstal)
+- [Android Terminal Emulator](https://github.com/jackpal/Android-Terminal-Emulator)
 
 ## Cara Install
 Unduh dulu "v2t" pada perangkat Android Anda dengan perintah di bawah atau mengunduhnya secara manual melalui browser Anda.
@@ -34,6 +34,7 @@ Untuk mengembalikannya
 mount -o remount, ro /system
 ```
 ## Cara Menggunakan
+Jalankan Terminal Emulator, lalu ketik perintah di bawah
 ```
 su
 v2t
