@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-version="1.1.03"
+version="1.1.04"
 # Credits: Aditya Pratama, XDA Developers, Stackexchange, Google dan You.
 
 ## Default Interface
@@ -32,6 +32,8 @@ to1="Tethering WIFI"
 to2="Tethering USB"
 to3="Tethering Bluetooth"
 
+check_rw
+copyright
 # Function
 
 copyright () {
@@ -314,11 +316,10 @@ help () {
 	echo "   facebook.com/deace.inc"
 	echo "    https://github.com/De4ce/v2t"
 	echo
-	echo "   V2T (VPN TO TETHER) adalah sebuah software open source yang memungkinkan untuk mengaktifkan Tethering saat VPN sedang aktif."
-	echo "   V2T hanya dapat dijalankan jika perangkat Android Anda memiliki akses root dan dukungan iptables."
+	echo "   V2T (VPN TO TETHER) adalah sebuah software open source untuk mengaktifkan Tethering saat menggunakan VPN.."
+	echo "   V2T hanya dapat dijalankan di perangkat Android yang memiliki akses root dan dukungan iptables."
 	echo
 	echo "   Anda bebas mengedit ulang software ini tetapi Anda tidak diperkenankan untuk menghapus Author pembuat software ini."
-	echo "   Jangan pernah menjual software ini kepada siapapun."
 	echo
 	sleep 5
 	echo "   Masalah V2T"
@@ -465,9 +466,6 @@ show_log () {
 	fi
 }
 
-#Main
-check_rw
-copyright
 if [ "$log_mode" != "1" ]; then
 	log="/dev/null"
 fi
