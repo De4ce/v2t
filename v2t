@@ -1,7 +1,15 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-version="1.1.05"
+version="1.1.06"
+
+#default lang
+lang_root_access="Maaf! Akses root diperlukan."
+lang_wifi_tethering="Tethering Wifi"
+lang_usb_tethering="Tethering USB"
+lang_bt_tethering="Tethering Bluetooth"
+lang_log_not_found="Log tidak ada"
+
 
 ## Default Interface
 usb="usb0"
@@ -27,9 +35,10 @@ force_tether="0"
 log_mode="0"
 
 ## 
-to1="Tethering WIFI"
-to2="Tethering USB"
-to3="Tethering Bluetooth"
+to1="$lang_wifi_tethering"
+to2="$lang_usb_tethering"
+to3="$lang_bt_tethering"
+
 
 # Function
 
@@ -458,7 +467,7 @@ show_log () {
 			sleep 0.3
 		else
 			sleep 0.3
-			echo "    Log tidak ada."
+			echo "    $lang_log_not_found."
 		fi
 	fi
 }
@@ -477,9 +486,10 @@ else
 	path="/system/bin"
 	force_root="1"
 fi
+
 if [ "$($path/id -u)" != "0" ] && [ "$($path/id -u)" != "root" ] && [ "$force_root" != "1" ]; then
 	echo
-	echo "  [!] Maaf! Akses root dibutuhkan."
+	echo "  [!] $lang_root_access"
 else
 	home
 	echo
