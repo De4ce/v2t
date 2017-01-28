@@ -7,11 +7,36 @@ interface[0]="Wifi Tethering"
 interface[1]="Bluetooth Tethering"
 interface[2]="USB Tethering"
 
+#Timelog
+timelog () {
+		echo -n "[$(date +%H:%M:%S)] "
+}
+
 #V2T FUNCTION
 __print () {
 	sleep 0.5
 	echo "$1"
 }
+
+__tethering () {
+	sleep 3
+	timelog2
+	iptables --flush &>> "$log"
+	iptables -t filter -F FORWARD &>> "$log"
+	iptables -t nat -F POSTROUTING &>> "$log"
+	iptables -t filter -A FORWARD -j ACCEPT &>> "$log"
+	iptables -t nat -A POSTROUTING -j MASQUERADE &>> "$log"
+	timelog
+	echo "Mengatur DNS..."
+	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to "$dns" &>> "$log"
+	ip rule add from "$ip/24" lookup 61 &>> "$log"
+	ip route add default dev "$vpn" scope link table 61 &>> "$log"
+	ip route add "$ip/24" dev "$interface" scope link table 61 &>> "$log"
+	ip route add broadcast 255.255.255.255 dev "$interface" scope link table 61 &>> "$log"
+	timelog
+	echo "Selesai..."
+}
+
 
 __print "
  __     ______ _____ 
