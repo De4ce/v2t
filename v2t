@@ -1,14 +1,7 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-version="1.1.08"
-
-interface[0]="Wifi Tethering"
-interface[1]="Bluetooth Tethering"
-interface[2]="USB Tethering"
-ip_interface[0]=""
-ip_interface[1]=""
-ip_interface[2]=""
+version="1.1.09"
 
 #Timelog
 __time () {
@@ -20,7 +13,8 @@ __time () {
 	fi
 }
 
-#V2T FUNCTION
+## V2T FUNCTION ##
+
 __print () {
 	sleep 0.5
 	echo "$1"
@@ -45,6 +39,8 @@ __tethering () {
 	echo "Selesai..."
 }
 
+## END V2T FUNCTION"
+
 
 __print "
  __     ______ _____ 
@@ -53,4 +49,12 @@ __print "
    \ V /  / __/ | |  	Email: deace.inc@gmail.com
     \_/  |_____||_|  	facebook.com/deace.inc
                      
+  Cara menggunakan: v2t [pintasan: -p ] [argumen] [isi] [...]
+  -i  <interface> : Interface tethering. 
+  -ia <ip address> : IP Address tethering.
+  -c <config-file> : Lokasi konfigurasi (default: $HOME/v2t.conf.
+  -p <wf/usb/bt> : Pintasan untuk tethering.
+	-l <enable/disable> : Pencatatan log eksternal (default: disables)
+	-a <enable/disable> : Otomatis mengulangi (default: enabled)
+	-d <dns> : alamat DNS.
 "
