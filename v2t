@@ -1,15 +1,23 @@
 #!/system/bin/sh
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
-version="1.1.07"
+version="1.1.08"
 
 interface[0]="Wifi Tethering"
 interface[1]="Bluetooth Tethering"
 interface[2]="USB Tethering"
+ip_interface[0]=""
+ip_interface[1]=""
+ip_interface[2]=""
 
 #Timelog
-timelog () {
+__time () {
+	if [ $1 == 0 ]; then
 		echo -n "[$(date +%H:%M:%S)] "
+	else
+		echo >> "$log"
+		echo "[$(date '+%d-%m-%y %H:%M:%S')]" >> "$log"
+	fi
 }
 
 #V2T FUNCTION
@@ -20,13 +28,13 @@ __print () {
 
 __tethering () {
 	sleep 3
-	timelog2
+	__time 1
 	iptables --flush &>> "$log"
 	iptables -t filter -F FORWARD &>> "$log"
 	iptables -t nat -F POSTROUTING &>> "$log"
 	iptables -t filter -A FORWARD -j ACCEPT &>> "$log"
 	iptables -t nat -A POSTROUTING -j MASQUERADE &>> "$log"
-	timelog
+	__time 0
 	echo "Mengatur DNS..."
 	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to "$dns" &>> "$log"
 	ip rule add from "$ip/24" lookup 61 &>> "$log"
