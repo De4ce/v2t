@@ -2,10 +2,11 @@
 # V2T by Aditya Pratama :v
 # Copyright (c) 2017 DEACE
 version="1.1.09"
+log=/dev/null
 
 #Timelog
 __time () {
-	if [ $1 == 0 ]; then
+	if [ "$1" = 0 ]; then
 		echo -n "[$(date +%H:%M:%S)] "
 	else
 		echo >> "$log"
@@ -21,6 +22,7 @@ __print () {
 }
 
 __tethering () {
+	$@
 	sleep 3
 	__time 1
 	iptables --flush &>> "$log"
@@ -30,31 +32,48 @@ __tethering () {
 	iptables -t nat -A POSTROUTING -j MASQUERADE &>> "$log"
 	__time 0
 	echo "Mengatur DNS..."
-	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to "$dns" &>> "$log"
-	ip rule add from "$ip/24" lookup 61 &>> "$log"
-	ip route add default dev "$vpn" scope link table 61 &>> "$log"
-	ip route add "$ip/24" dev "$interface" scope link table 61 &>> "$log"
+	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to "8.8.8.8" &>> "$log"
+	ip rule add from "$8.8.8.8/24" lookup 61 &>> "$log"
+	ip route add default dev "tun0" scope link table 61 &>> "$log"
+	ip route add "8.8.8.8/24" dev "$interface" scope link table 61 &>> "$log"
 	ip route add broadcast 255.255.255.255 dev "$interface" scope link table 61 &>> "$log"
-	timelog
+	__time 0
 	echo "Selesai..."
 }
 
 ## END V2T FUNCTION"
 
 
-__print "
- __     ______ _____ 
- \ \   / /___ \_   _|	VPN TO TETHER v$version
-  \ \ / /  __) || |  	Author: Aditya Pratama
-   \ V /  / __/ | |  	Email: deace.inc@gmail.com
-    \_/  |_____||_|  	facebook.com/deace.inc
-                     
-  Cara menggunakan: v2t [pintasan: -p ] [argumen] [isi] [...]
-  -i  <interface> : Interface tethering. 
-  -ia <ip address> : IP Address tethering.
-  -c <config-file> : Lokasi konfigurasi (default: $HOME/v2t.conf.
-  -p <wf/usb/bt> : Pintasan untuk tethering.
-	-l <enable/disable> : Pencatatan log eksternal (default: disables)
-	-a <enable/disable> : Otomatis mengulangi (default: enabled)
-	-d <dns> : alamat DNS.
-"
+echo " __     ______ _____ "
+echo " \ \   / /___ \_   _|	VPN TO TETHER v$version"
+echo "  \ \ / /  __) || |  	Author: Aditya Pratama"
+echo "   \ V /  / __/ | |  	Email: deace.inc@gmail.com"
+echo "    \_/  |_____||_|  	facebook.com/deace.inc"
+echo "                     "
+echo "  Cara menggunakan: v2t [wf/usb/bt] [OPSI] [LAIN] [...]"
+echo "  -i  <interface> : Interface tethering. "
+echo "  -ia <ip address> : IP Address tethering."
+echo "  -c <config-file> : Lokasi konfigurasi (default: $HOME"
+echo "  -l <enable/disable> : Pencatatan log eksternal (default: disabled)"
+echo "  -a <enable/disable> : Otomatis mengulangi (default: enabled)"
+echo "  -d <dns> : alamat DNS."
+
+# mengecek akses root
+xpath="/system/xbin"
+if [ -e "$xpath/id" ];
+then
+	path="$xpath"
+else
+	path="/system/bin"
+	force_root="1"
+fi
+
+if [ "$($path/id -u)" != "0" ] && [ "$($path/id -u)" != "root" ] && [ "$force_root" != "1" ]; then
+	echo
+	echo "  [!] Maaf! Akses diperlukan."
+else
+	home
+	echo
+	echo
+	exit
+fi
