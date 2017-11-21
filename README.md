@@ -3,7 +3,7 @@ V2T adalah sebuah shell untuk memungkinkan menggunakan tethering saat VPN sedang
 Perlu akses root untuk menjalankan shell ini.
 
 Terjemahan?
-Hubungi kami : deace.inc@gmail.com
+Hubungi kami : deacecroft@gmail.com
 
 ## Membutuhkan 
 - ROOT
